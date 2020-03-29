@@ -77,39 +77,50 @@
     $(document).ready(function () {
         let vibedata;
 
-        $.ajax({
-            type: 'GET',
-            url: 'dist/data/vibetable.json',
-            dataType: 'text',
-            success: function (data) {
-                processVibeTable(JSON.parse(data), defaultWeights);
-            }
-        });
-
-        $('#spidergraphcontainer').spidergraph({
-            'fields': ['Neighborhood score', 'Neighborhood accuracy', 'Number of reviews'],
-            'gridcolor': 'rgba(20,20,20,1)'
-        });
-
-        $('#spidergraphcontainer').spidergraph('setactivedata', {
-            'strokecolor': 'rgba(230,104,230,0.8)',
-            'fillcolor': 'rgba(230,104,230,0.6)',
-            'data': [defaultWeights['n_score'], defaultWeights['n_accuracy'], defaultWeights['reviewcount']]
-        });
-    });
-
-    function processVibeTable(data, weights) {
         const map = L.map('map').setView([42.317048, -71.077208], 11);
 
         const tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
 
+
+        $.ajax({
+            type: 'GET',
+            url: 'dist/data/vibetable.json',
+            dataType: 'text',
+            success: function (data) {
+                vibedata = JSON.parse(data);
+                processVibeTable(vibedata, defaultWeights, map);
+            }
+        });
+
+        $('#spidergraphcontainer').spidergraph({
+            'fields': ['Neighborhood score', 'Neighborhood accuracy', 'Number of reviews'],
+            'gridcolor': 'rgb(172,172,172)'
+        });
+
+        $('#spidergraphcontainer').spidergraph('setactivedata', {
+            'strokecolor': 'rgba(46,131,230,0.8)',
+            'fillcolor': 'rgba(46,131,230,0.6)',
+            'data': [defaultWeights['n_score'], defaultWeights['n_accuracy'], defaultWeights['reviewcount']]
+        });
+
+        $('#spidergraphcontainer').bind('spiderdatachange', function (ev, data) {
+            console.log('Graph changed: ' + data);
+            processVibeTable(vibedata, {
+                'n_score': data[0],
+                'n_accuracy': data[1],
+                'reviewcount': data[2]
+            }, map);
+        });
+    });
+
+    function processVibeTable(data, weights, map) {
         let biggestVibe = 0;
         let formattedData = [];
         Object.keys(data).forEach(key => {
             const point = data[key];
-            const vibe = calcVibe(point);
+            const vibe = calcVibe(point, weights);
             const arr = [point['lat'], point['lon'], vibe];
             if (vibe > biggestVibe) {
                 biggestVibe = vibe;
@@ -119,11 +130,18 @@
 
         formattedData = formattedData.map(point => [point[0], point[1], point[2] / biggestVibe]);
 
+        map.eachLayer(function (layer) {
+            map.removeLayer(layer);
+        });
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
         const heat = L.heatLayer(formattedData).addTo(map);
     }
 
-    function calcVibe(datapoint) {
-        return datapoint['neighborhood_accuracy'] + datapoint['num_reviews'];
+    function calcVibe(datapoint, weights) {
+        return (weights.n_accuracy * datapoint['neighborhood_accuracy'])
+            + (weights.reviewcount * datapoint['num_reviews']);
     }
 
 </script>
