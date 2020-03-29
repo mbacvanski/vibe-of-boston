@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+	<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<style>
+		#map {
+			width: 800px;
+			height: 600px;
+		}
+
+		.ghbtns {
+			position: relative;
+			top: 4px;
+			margin-left: 5px;
+		}
+	</style>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+		  integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"
+			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+			integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+			crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+			integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+			crossorigin="anonymous"></script>
+
+	<title>Vibe of Boston</title>
+</head>
+
+<body>
+<div class="container" style="padding:50px">
+	<div class="jumbotron">
+		<div class="container">
+			<h1 class="display-4">Vibe of Boston</h1>
+			<p class="lead">Perform a vibe check on Boston using Airbnb data from 2015-2020.</p>
+			<hr class="my-4">
+		</div>
+	</div>
+
+	<div id="map"></div>
+</div>
+
+<script src="dist/leaflet-heat.js"></script>
+<!--<script src="http://leaflet.github.io/Leaflet.markercluster/example/realworld.10000.js"></script>-->
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            type: 'GET',
+            url: 'dist/data/vibetable.json',
+            dataType: 'text',
+            success: function (data) {
+                processVibeTable(JSON.parse(data));
+            }
+        });
+    });
+
+    function processVibeTable(data) {
+        const map = L.map('map').setView([42.317048, -71.077208], 11);
+
+        const tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
+
+        let biggestVibe = 0;
+        let formattedData = [];
+        Object.keys(data).forEach(key => {
+            const point = data[key];
+            const vibe = calcVibe(point);
+            const arr = [point['lat'], point['lon'], vibe];
+            if (vibe > biggestVibe) {
+                biggestVibe = vibe;
+            }
+            // console.log('array here = ' + arr + ' | ' + JSON.stringify(point));
+            formattedData.push(arr);
+        });
+
+        formattedData = formattedData.map(point => [point[0], point[1], point[2] / biggestVibe]);
+
+        const heat = L.heatLayer(formattedData).addTo(map);
+    }
+
+    function calcVibe(datapoint) {
+        return datapoint['neighborhood_accuracy'] * datapoint['num_reviews'];
+    }
+
+</script>
+</body>
+</html>
