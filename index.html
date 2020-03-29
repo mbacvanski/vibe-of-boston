@@ -14,6 +14,11 @@
 			top: 4px;
 			margin-left: 5px;
 		}
+
+		#spidergraphcontainer {
+			width: 300px;
+			height: 300px;
+		}
 	</style>
 
 	<meta charset="utf-8">
@@ -32,37 +37,65 @@
 			integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
 			crossorigin="anonymous"></script>
 
+	<script src="dist/spidergraph.js"></script>
+
 	<title>Vibe of Boston</title>
 </head>
 
 <body>
-<div class="container" style="padding:50px">
+<div class="w-screen mt-4" style="padding-left:30px; padding-right: 30px">
 	<div class="jumbotron">
 		<div class="container">
 			<h1 class="display-4">Vibe of Boston</h1>
 			<p class="lead">Perform a vibe check on Boston using Airbnb data from 2015-2020.</p>
-			<hr class="my-4">
+			<!--			<hr class="my-4">-->
 		</div>
 	</div>
 
-	<div id="map"></div>
+	<div class="row">
+		<div class="col-9">
+			<div id="map" style="width: 100%"></div>
+		</div>
+		<div class="col-3">
+			<div id="spidergraphcontainer"></div>
+		</div>
+	</div>
 </div>
 
 <script src="dist/leaflet-heat.js"></script>
-<!--<script src="http://leaflet.github.io/Leaflet.markercluster/example/realworld.10000.js"></script>-->
 <script>
+    const defaultWeights = {
+        'n_score': 10,
+        'n_accuracy': 10,
+        'reviewcount': 10
+    };
+
+
     $(document).ready(function () {
+        let vibedata;
+
         $.ajax({
             type: 'GET',
             url: 'dist/data/vibetable.json',
             dataType: 'text',
             success: function (data) {
-                processVibeTable(JSON.parse(data));
+                processVibeTable(JSON.parse(data), defaultWeights);
             }
+        });
+
+        $('#spidergraphcontainer').spidergraph({
+            'fields': ['Neighborhood score', 'Neighborhood accuracy', 'Number of reviews'],
+            'gridcolor': 'rgba(20,20,20,1)'
+        });
+
+        $('#spidergraphcontainer').spidergraph('setactivedata', {
+            'strokecolor': 'rgba(230,104,230,0.8)',
+            'fillcolor': 'rgba(230,104,230,0.6)',
+            'data': [defaultWeights['n_score'], defaultWeights['n_accuracy'], defaultWeights['reviewcount']]
         });
     });
 
-    function processVibeTable(data) {
+    function processVibeTable(data, weights) {
         const map = L.map('map').setView([42.317048, -71.077208], 11);
 
         const tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -78,7 +111,6 @@
             if (vibe > biggestVibe) {
                 biggestVibe = vibe;
             }
-            // console.log('array here = ' + arr + ' | ' + JSON.stringify(point));
             formattedData.push(arr);
         });
 
@@ -88,7 +120,7 @@
     }
 
     function calcVibe(datapoint) {
-        return datapoint['neighborhood_accuracy'] * datapoint['num_reviews'];
+        return datapoint['neighborhood_accuracy'] + datapoint['num_reviews'];
     }
 
 </script>
