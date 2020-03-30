@@ -44,6 +44,17 @@
 </head>
 
 <body>
+<!--<div class="navbar">-->
+<!--	<div class="navbar-inner">-->
+<!--		<a class="brand" href="#">Title</a>-->
+<!--		<ul class="nav">-->
+<!--			<li class="active"><a href="#">Home</a></li>-->
+<!--			<li><a href="#">Link</a></li>-->
+<!--			<li><a href="#">Link</a></li>-->
+<!--		</ul>-->
+<!--	</div>-->
+<!--</div>-->
+
 <div class="w-screen mt-4" style="padding-left:30px; padding-right: 30px">
 	<div class="jumbotron">
 		<div class="container">
@@ -68,9 +79,9 @@
 
 <script>
     const defaultWeights = {
-        'n_score': 10,
+        'rating': 10,
         'n_accuracy': 10,
-        'reviewcount': 10
+        'reviewcount': 10,
     };
 
 
@@ -83,7 +94,6 @@
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
 
-
         $.ajax({
             type: 'GET',
             url: 'dist/data/vibetable.json',
@@ -95,22 +105,24 @@
         });
 
         $('#spidergraphcontainer').spidergraph({
-            'fields': ['Neighborhood score', 'Neighborhood accuracy', 'Number of reviews'],
+            'fields': ['Average rating', 'Neighborhood perception accuracy', 'Number of reviews'],
             'gridcolor': 'rgb(172,172,172)'
         });
 
         $('#spidergraphcontainer').spidergraph('setactivedata', {
             'strokecolor': 'rgba(46,131,230,0.8)',
             'fillcolor': 'rgba(46,131,230,0.6)',
-            'data': [defaultWeights['n_score'], defaultWeights['n_accuracy'], defaultWeights['reviewcount']]
+            'data': [defaultWeights['rating'],
+                defaultWeights['n_accuracy'],
+                defaultWeights['reviewcount']]
         });
 
         $('#spidergraphcontainer').bind('spiderdatachange', function (ev, data) {
             console.log('Graph changed: ' + data);
             processVibeTable(vibedata, {
-                'n_score': data[0],
+                'rating': data[0],
                 'n_accuracy': data[1],
-                'reviewcount': data[2]
+                'reviewcount': data[2],
             }, map);
         });
     });
@@ -141,7 +153,8 @@
 
     function calcVibe(datapoint, weights) {
         return (weights.n_accuracy * datapoint['neighborhood_accuracy'])
-            + (weights.reviewcount * datapoint['num_reviews']);
+            + (weights.reviewcount * datapoint['num_reviews'])
+            + (weights.rating * datapoint['rating']);
     }
 
 </script>
