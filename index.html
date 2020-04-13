@@ -150,9 +150,9 @@
     }
 
     function calcVibe(datapoint, weights) {
-        return (weights.n_accuracy * datapoint['neighborhood_accuracy'])
-            + (weights.reviewcount * datapoint['num_reviews'])
-            + (weights.rating * datapoint['rating']);
+        return (weights.n_accuracy * datapoint['consistency'])
+            + (weights.reviewcount * datapoint['popularity'])
+            + (weights.rating * datapoint['enjoyability']);
     }
 
 </script>
