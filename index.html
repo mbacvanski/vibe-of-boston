@@ -118,6 +118,7 @@
                 'rating': data[0],
                 'n_accuracy': data[1],
                 'reviewcount': data[2],
+				'happiness': data[3],
             }, map);
         });
     });
@@ -154,7 +155,8 @@
     function calcVibe(datapoint, weights) {
         return (weights.n_accuracy * datapoint['consistency'])
             + (weights.reviewcount * datapoint['popularity'])
-            + (weights.rating * datapoint['enjoyability']);
+            + (weights.rating * datapoint['enjoyability'])
+			+ (weights.happiness * datapoint['happiness']);
     }
 
 </script>
