@@ -129,13 +129,15 @@
             const point = data[key];
             const vibe = calcVibe(point, weights);
             const arr = [point['lat'], point['lon'], vibe];
+            formattedData.push(arr);
             if (vibe > biggestVibe) {
                 biggestVibe = vibe;
             }
-            formattedData.push(arr);
         });
 
         formattedData = formattedData.map(point => [point[0], point[1], point[2] / biggestVibe]);
+
+        console.log('largest vibe = ' + biggestVibe);
 
         map.eachLayer(function (layer) {
             map.removeLayer(layer);
