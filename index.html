@@ -84,7 +84,7 @@
 
         $.ajax({
             type: 'GET',
-            url: 'dist/data/vibetable.json',
+            url: 'dist/data/happiness_and_data.json',
             dataType: 'text',
             success: function (data) {
                 vibedata = JSON.parse(data);
@@ -118,7 +118,9 @@
                 'rating': data[0],
                 'n_accuracy': data[1],
                 'reviewcount': data[2],
-				'happiness': data[3],
+                'happiness': data[3],
+                'walkability': data[4],
+                'transit': data[5],
             }, map);
         });
     });
@@ -147,16 +149,19 @@
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
         const heat = L.heatLayer(formattedData, {
-            max: 3.5,
-            gradient: {0.2: 'blue', 0.55: 'green', 0.8: 'yellow', 1: 'red'}
+            max: 1,
+            gradient: {0.1: 'blue', 0.2: 'green', 0.4: 'yellow', 1: 'red'}
+            // gradient: {0.2: 'blue', 0.55: 'green', 0.8: 'yellow', 1: 'red'}
         }).addTo(map);
     }
 
     function calcVibe(datapoint, weights) {
-        return (weights.n_accuracy * datapoint['consistency'])
-            + (weights.reviewcount * datapoint['popularity'])
-            + (weights.rating * datapoint['enjoyability'])
-			+ (weights.happiness * datapoint['happiness']);
+        return 2 * weights.n_accuracy * datapoint['consistency']
+            + 2 * weights.reviewcount * datapoint['popularity']
+            + 1 * weights.rating * datapoint['enjoyability'];
+            // + 1 * weights.happiness * datapoint['happiness']
+            // + 1.2 * weights.walkability * datapoint['walkability']
+            // + 1 * weights.transit * datapoint['transit'];
     }
 
 </script>
