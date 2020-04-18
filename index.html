@@ -62,14 +62,11 @@
 
 <script>
     const defaultWeights = {
-        'rating': 10,
-        'n_accuracy': 10,
-        'reviewcount': 10,
-        'popularity': 10,
+        'honesty': 10,
         'happiness': 10,
-        'walkability': 10,
-        'transit': 10,
         'liveliness': 10,
+        'walkability': 10,
+        'peacefulness': 10,
     };
 
 
@@ -84,7 +81,7 @@
 
         $.ajax({
             type: 'GET',
-            url: 'dist/data/happiness_and_data.json',
+            url: 'dist/data/scaled_table.json',
             dataType: 'text',
             success: function (data) {
                 vibedata = JSON.parse(data);
@@ -94,7 +91,7 @@
 
         $('#spidergraphcontainer').spidergraph({
             // 'fields': ['Average rating', 'Neighborhood perception accuracy', 'Average rating'],
-            'fields': ['Enjoyability', 'Consistency', 'Popularity', 'Happiness', 'Walkability', 'Transit', 'Liveliness'],
+            'fields': ['Honesty', 'Happiness', 'Liveliness', 'Walkability', 'Peacefulness'],
             'gridcolor': 'rgb(172,172,172)',
             'linear': true,
         });
@@ -102,25 +99,23 @@
         $('#spidergraphcontainer').spidergraph('setactivedata', {
             'strokecolor': 'rgba(46,131,230,0.8)',
             'fillcolor': 'rgba(46,131,230,0.6)',
-            'data': [defaultWeights['rating'],
-                defaultWeights['n_accuracy'],
-                defaultWeights['reviewcount'],
+            'data': [
+                defaultWeights['honesty'],
                 defaultWeights['happiness'],
-                defaultWeights['walkability'],
-                defaultWeights['transit'],
                 defaultWeights['liveliness'],
+                defaultWeights['walkability'],
+                defaultWeights['peacefulness'],
             ],
             'linear': true,
         });
 
         $('#spidergraphcontainer').bind('spiderdatachange', function (ev, data) {
             processVibeTable(vibedata, {
-                'rating': data[0],
-                'n_accuracy': data[1],
-                'reviewcount': data[2],
-                'happiness': data[3],
-                'walkability': data[4],
-                'transit': data[5],
+                'honesty': data[0],
+                'happiness': data[1],
+                'liveliness': data[2],
+                'walkability': data[3],
+                'peacefulness': data[4],
             }, map);
         });
     });
@@ -138,7 +133,7 @@
             }
         });
 
-        formattedData = formattedData.map(point => [point[0], point[1], point[2] / biggestVibe]);
+        // formattedData = formattedData.map(point => [point[0], point[1], point[2] / biggestVibe]);
 
         console.log('largest vibe = ' + biggestVibe);
 
@@ -149,19 +144,20 @@
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
         const heat = L.heatLayer(formattedData, {
-            max: 1,
+            max: biggestVibe,
             gradient: {0.1: 'blue', 0.2: 'green', 0.4: 'yellow', 1: 'red'}
             // gradient: {0.2: 'blue', 0.55: 'green', 0.8: 'yellow', 1: 'red'}
         }).addTo(map);
     }
 
     function calcVibe(datapoint, weights) {
-        return 2 * weights.n_accuracy * datapoint['consistency']
-            + 2 * weights.reviewcount * datapoint['popularity']
-            + 1 * weights.rating * datapoint['enjoyability'];
-            // + 1 * weights.happiness * datapoint['happiness']
-            // + 1.2 * weights.walkability * datapoint['walkability']
-            // + 1 * weights.transit * datapoint['transit'];
+        let sumWeights = weights['honesty'] + weights['happiness'] + weights['liveliness'] + weights['walkability'] + weights['peacefulness'];
+
+        return 2 * (weights['honesty'] - (defaultWeights['honesty'] * 4.0 / 5)) * datapoint['honesty'] +
+            0.5 * (weights['happiness'] - (defaultWeights['happiness'] * 4.0 / 5)) * datapoint['happiness'] +
+            2 * (weights['liveliness'] - (defaultWeights['liveliness'] * 4.0 / 5)) * datapoint['liveliness'] +
+            2 * (weights['walkability'] - (defaultWeights['walkability'] * 4.0 / 5)) * datapoint['walkability'] +
+            2 * (weights['peacefulness'] - (defaultWeights['peacefulness'] * 4.0 / 5)) * datapoint['peacefulness'];
     }
 
 </script>
