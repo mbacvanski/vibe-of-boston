@@ -135,7 +135,7 @@
 
         // formattedData = formattedData.map(point => [point[0], point[1], point[2] / biggestVibe]);
 
-        console.log('largest vibe = ' + biggestVibe);
+        // console.log('largest vibe = ' + biggestVibe);
 
         map.eachLayer(function (layer) {
             map.removeLayer(layer);
@@ -145,19 +145,16 @@
         }).addTo(map);
         const heat = L.heatLayer(formattedData, {
             max: biggestVibe,
-            gradient: {0.1: 'blue', 0.2: 'green', 0.4: 'yellow', 1: 'red'}
-            // gradient: {0.2: 'blue', 0.55: 'green', 0.8: 'yellow', 1: 'red'}
+            gradient: {0.1: 'blue', 0.2: 'green', 0.3: 'yellow', 0.4: 'orange', 1: 'red'}
         }).addTo(map);
     }
 
     function calcVibe(datapoint, weights) {
-        let sumWeights = weights['honesty'] + weights['happiness'] + weights['liveliness'] + weights['walkability'] + weights['peacefulness'];
-
         return 2 * (weights['honesty'] - (defaultWeights['honesty'] * 4.0 / 5)) * datapoint['honesty'] +
             0.5 * (weights['happiness'] - (defaultWeights['happiness'] * 4.0 / 5)) * datapoint['happiness'] +
             2 * (weights['liveliness'] - (defaultWeights['liveliness'] * 4.0 / 5)) * datapoint['liveliness'] +
             2 * (weights['walkability'] - (defaultWeights['walkability'] * 4.0 / 5)) * datapoint['walkability'] +
-            2 * (weights['peacefulness'] - (defaultWeights['peacefulness'] * 4.0 / 5)) * datapoint['peacefulness'];
+            2 * (weights['peacefulness'] - (defaultWeights['peacefulness'] * 1.0 / 5)) * datapoint['peacefulness'];
     }
 
 </script>
