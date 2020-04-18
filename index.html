@@ -126,7 +126,6 @@
         });
 
         $('#spidergraphcontainer').spidergraph({
-            // 'fields': ['Average rating', 'Neighborhood perception accuracy', 'Average rating'],
             'fields': ['Honesty', 'Happiness', 'Liveliness', 'Walkability', 'Peacefulness'],
             'gridcolor': 'rgb(172,172,172)',
             'linear': true,
@@ -168,10 +167,6 @@
                 biggestVibe = vibe;
             }
         });
-
-        // formattedData = formattedData.map(point => [point[0], point[1], point[2] / biggestVibe]);
-
-        // console.log('largest vibe = ' + biggestVibe);
 
         map.eachLayer(function (layer) {
             map.removeLayer(layer);
