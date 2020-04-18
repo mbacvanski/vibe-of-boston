@@ -8,6 +8,10 @@
 			integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
 			crossorigin=""></script>
 	<style>
+		body {
+			padding-left: 30px;
+			padding-right: 30px;
+		}
 		#map {
 			width: 800px;
 			height: 600px;
@@ -46,7 +50,10 @@
 
 <body>
 
-<div class="w-screen mt-4" style="padding-left:30px; padding-right: 30px">
+<h1>Vibe of Boston</h1>
+<h4>Marc Bacvanski and Vedant Rautela</h4>
+
+<div class="w-screen mt-4"> <!--style="padding-left:30px; padding-right: 30px">-->
 	<div class="row">
 		<div class="col-9">
 			<div id="map" style="width: 95%"></div>
@@ -56,6 +63,14 @@
 		</div>
 	</div>
 </div>
+
+<p style="padding-top: 30px">
+	Use the alignment chart on the right to select what weight you give to each of the vibe factors.
+	<br>
+	The heatmap on the left will show you which regions of Boston align most with the features you selected.
+	<br>
+	Zoom in to take a closer look at which neighborhoods specifically suit you.
+</p>
 
 <script src="dist/leaflet-heat.js"></script>
 <script src="dist/spidergraph.js"></script>
